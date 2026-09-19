@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nutrient Profile Model for Nigeria (NPM-N) Calculator</title>
+<style>
+:root{--green:#087a43;--green2:#075f36;--pale:#eef8f2;--line:#d9e2dc;--text:#17211b;--muted:#637068;--red:#b42318;--redbg:#fff3f2}
+*{box-sizing:border-box} body{margin:0;background:#f6f8f7;color:var(--text);font-family:Arial,Helvetica,sans-serif}
+.wrap{max-width:1050px;margin:28px auto;padding:0 16px}.hero{background:linear-gradient(135deg,var(--green2),var(--green));color:white;padding:24px;border-radius:18px 18px 0 0}
+.hero h1{margin:0 0 6px;font-size:28px}.hero p{margin:0;opacity:.92}.body{background:white;border:1px solid var(--line);border-top:0;padding:22px;border-radius:0 0 18px 18px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}.card{border:1px solid var(--line);border-radius:14px;padding:18px}.card h2{margin:0 0 6px;font-size:20px}
+.help{color:var(--muted);font-size:13px;margin:0 0 16px}.choice{display:flex;gap:24px;flex-wrap:wrap;margin:8px 0 18px}
+label{font-weight:600;font-size:14px}.choice label{font-weight:500}.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+input[type=number]{width:100%;margin-top:6px;padding:12px;border:1px solid #bfc9c2;border-radius:9px;font-size:16px}
+.question{margin-top:17px;padding:13px;border:1px solid var(--line);border-radius:10px;background:#fbfcfb}.question p{margin:0 0 4px;font-weight:700}
+button{border:0;border-radius:9px;padding:12px 18px;font-weight:700;font-size:15px;cursor:pointer}.primary{background:var(--green);color:white}.secondary{background:#edf1ee;color:var(--text);margin-left:8px}
+.actions{margin-top:18px}.error{color:var(--red);font-weight:700;font-size:13px;margin-top:12px}.summary{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.count{border:1px solid var(--line);border-radius:12px;padding:9px 14px;text-align:center;min-width:90px}.count strong{display:block;font-size:28px}.count small{color:var(--muted)}
+.empty{margin-top:20px;padding:32px 12px;border:1px dashed #bfc9c2;border-radius:10px;text-align:center;color:var(--muted)}
+.result{padding:13px 0;border-bottom:1px solid var(--line)}.result:last-child{border-bottom:0}.result strong{display:block}.result small{display:block;color:var(--muted);margin-top:4px;line-height:1.4}
+.warn{color:var(--red)}.ok{color:var(--green2)}.total{margin-top:16px;padding:15px;border:2px solid var(--green);border-radius:11px;background:var(--pale)}.total strong{font-size:22px;display:block;margin-top:4px}
+.thresholds{margin-top:22px}.thresholds h2{margin-top:0}table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:11px;border-bottom:1px solid var(--line);vertical-align:top}th{background:var(--pale)}
+.hidden{display:none}.footer{color:var(--muted);font-size:12px;margin-top:14px;line-height:1.5}
+@media(max-width:760px){.grid,.fields{grid-template-columns:1fr}.hero h1{font-size:23px}.wrap{margin:12px auto}.body{padding:14px}.card{padding:14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <h1>Nutrient Profile Model for Nigeria (NPM-N) Calculator</h1>
+    <p>Assess nutrients of concern using the Nigerian Nutrient Profile Model thresholds.</p>
+  </header>
+  <main class="body">
+    <div class="grid">
+      <section class="card">
+        <h2>Product information</h2>
+        <p class="help">Enter nutrient values per 100 g or 100 mL.</p>
+        <form id="form">
+          <label>Product form</label>
+          <div class="choice">
+            <label><input type="radio" name="type" value="solid" checked> Solid food</label>
+            <label><input type="radio" name="type" value="liquid"> Liquid / beverage</label>
+          </div>
+
+          <div id="caloricBox" class="question hidden">
+            <p>Is this a caloric beverage?</p>
+            <div class="choice" style="margin-bottom:0">
+              <label><input type="radio" name="caloric" value="yes" checked> Yes</label>
+              <label><input type="radio" name="caloric" value="no"> No</label>
+            </div>
+          </div>
+
+          <div class="fields">
+            <label>Energy (kcal)<input id="energy" type="number" min="0" step="any" placeholder="e.g. 250"></label>
+            <label>Sodium (mg)<input id="sodium" type="number" min="0" step="any" placeholder="e.g. 350"></label>
+            <label>Free sugars (g)<input id="sugar" type="number" min="0" step="any" placeholder="e.g. 12"></label>
+            <label>Saturated fat (g)<input id="sat" type="number" min="0" step="any" placeholder="e.g. 4"></label>
+            <label>Trans fat (g)<input id="trans" type="number" min="0" step="any" placeholder="e.g. 0.5"></label>
+          </div>
+
+          <div class="question">
+            <p>Contains sweeteners?</p>
+            <span class="help">Any amount of non-sugar sweeteners or other sweeteners.</span>
+            <div class="choice" style="margin-bottom:0">
+              <label><input type="radio" name="sweet" value="yes"> Yes</label>
+              <label><input type="radio" name="sweet" value="no" checked> No</label>
+            </div>
+          </div>
+
+          <div id="error" class="error"></div>
+          <div class="actions">
+            <button class="primary" type="submit">Calculate warning labels</button>
+            <button class="secondary" id="reset" type="button">Reset</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <div class="summary">
+          <div><h2>Assessment result</h2><p id="status" class="help">Enter product information and calculate.</p></div>
+          <div class="count"><strong id="count">—</strong><small>warnings</small></div>
+        </div>
+        <div id="results" class="empty">Results will appear here.</div>
+        <div id="totalBox" class="total hidden">
+          <span>Total warning labels required for this product:</span>
+          <strong id="total"></strong>
+        </div>
+      </section>
+    </div>
+
+    <section class="card thresholds">
+      <h2>NPM-N thresholds used</h2>
+      <table>
+        <thead><tr><th>Nutrient / criterion</th><th>Threshold</th></tr></thead>
+        <tbody>
+          <tr><td>Saturated fat</td><td>≥10% of total energy</td></tr>
+          <tr><td>Trans fat</td><td>≥1% of total energy</td></tr>
+          <tr><td>Free sugars</td><td>Solid foods: ≥10% of total energy; liquids/beverages: ≥5% of total energy</td></tr>
+          <tr><td>Sodium</td><td>Solids: ≥1 mg/kcal OR ≥300 mg/100 g; caloric liquids: ≥1 mg/kcal OR ≥300 mg/100 mL; non-caloric beverages: ≥40 mg/100 mL</td></tr>
+          <tr><td>Sweeteners</td><td>Any amount present</td></tr>
+        </tbody>
+      </table>
+      <p class="footer">This calculator applies the entered nutrient values to the NPM-N thresholds shown above. Product information should be entered on a per-100 g or per-100 mL basis as appropriate.</p>
+    </section>
+  </main>
+</div>
+
+<script>
+const form=document.getElementById('form');
+const caloricBox=document.getElementById('caloricBox');
+const type=()=>document.querySelector('input[name="type"]:checked').value;
+document.querySelectorAll('input[name="type"]').forEach(x=>x.addEventListener('change',()=>caloricBox.classList.toggle('hidden',type()!=='liquid')));
+function v(id){const x=document.getElementById(id).value.trim();return x===''?null:Number(x)}
+function resultRow(name,hit,detail){
+ return `<div class="result"><strong class="${hit?'warn':'ok'}">${hit?'⚠ Excess in '+name:'✓ No warning for '+name.toLowerCase()}</strong><small>${detail}</small>${hit?`<small><b>1 warning label required for ${name.toLowerCase()}.</b></small>`:''}</div>`;
+}
+form.addEventListener('submit',e=>{
+ e.preventDefault();
+ const E=v('energy'),Na=v('sodium'),Su=v('sugar'),Sa=v('sat'),Tr=v('trans');
+ const error=document.getElementById('error'); error.textContent='';
+ if([E,Na,Su,Sa,Tr].some(x=>x===null||!Number.isFinite(x)||x<0)){error.textContent='Please enter a valid non-negative value in every nutrient field.';return}
+ const liquid=type()==='liquid';
+ const caloric=liquid&&document.querySelector('input[name="caloric"]:checked').value==='yes';
+ if(E===0 && !(liquid&&!caloric) && (Su>0||Sa>0||Tr>0||Na>0)){error.textContent='Energy must be greater than 0 for energy-based calculations, unless this is a non-caloric beverage.';return}
+ const pct=(g,k)=>E>0?(g*k/E)*100:0;
+ const sugarPct=pct(Su,4),satPct=pct(Sa,9),transPct=pct(Tr,9);
+ const sugarHit=liquid?sugarPct>=5:sugarPct>=10;
+ const satHit=satPct>=10, transHit=transPct>=1;
+ let sodiumHit, sodiumDetail;
+ if(liquid&&!caloric){
+   sodiumHit=Na>=40;
+   sodiumDetail=`${Na} mg/100 mL; threshold ≥40 mg/100 mL for non-caloric beverages.`;
+ }else{
+   const ratio=E>0?Na/E:0, unit=liquid?'100 mL':'100 g';
+   sodiumHit=ratio>=1||Na>=300;
+   sodiumDetail=`${ratio.toFixed(2)} mg/kcal and ${Na} mg/${unit}; threshold ≥1 mg/kcal OR ≥300 mg/${unit}.`;
+ }
+ const sweet=document.querySelector('input[name="sweet"]:checked').value==='yes';
+ const rows=[
+  ['Free Sugars',sugarHit,`${sugarPct.toFixed(1)}% of total energy; threshold ${liquid?'≥5%':'≥10%'}.`],
+  ['Saturated Fat',satHit,`${satPct.toFixed(1)}% of total energy; threshold ≥10%.`],
+  ['Trans Fat',transHit,`${transPct.toFixed(1)}% of total energy; threshold ≥1%.`],
+  ['Sodium',sodiumHit,sodiumDetail],
+  ['Sweeteners',sweet,sweet?'Sweeteners are present.':'No sweeteners reported.']
+ ];
+ const total=rows.filter(r=>r[1]).length;
+ const results=document.getElementById('results');
+ results.className=''; results.innerHTML=rows.map(r=>resultRow(...r)).join('');
+ document.getElementById('count').textContent=total;
+ document.getElementById('status').textContent=liquid?(caloric?'Caloric liquid/beverage assessment.':'Non-caloric beverage assessment.'):'Solid food assessment.';
+ document.getElementById('totalBox').classList.remove('hidden');
+ document.getElementById('total').textContent=`${total} warning label${total===1?'':'s'}`;
+});
+document.getElementById('reset').addEventListener('click',()=>{
+ form.reset(); caloricBox.classList.add('hidden'); document.getElementById('error').textContent='';
+ document.getElementById('count').textContent='—'; document.getElementById('status').textContent='Enter product information and calculate.';
+ const r=document.getElementById('results'); r.className='empty'; r.innerHTML='Results will appear here.';
+ document.getElementById('totalBox').classList.add('hidden');
+});
+</script>
+</body>
+</html>
