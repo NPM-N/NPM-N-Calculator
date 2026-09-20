@@ -29,7 +29,7 @@ button{border:0;border-radius:9px;padding:12px 18px;font-weight:700;font-size:15
 <div class="wrap">
   <header class="hero">
     <h1>Nutrient Profile Model for Nigeria (NPM-N) Calculator</h1>
-    <p>Assess nutrients of concern using the Nigerian Nutrient Profile Model thresholds.</p>
+    <p>Supporting healthier food environments in Nigeria.</p>
   </header>
   <main class="body">
     <div class="grid">
@@ -142,7 +142,7 @@ form.addEventListener('submit',e=>{
   ['Saturated Fat',satHit,`${satPct.toFixed(1)}% of total energy; threshold ≥10%.`],
   ['Trans Fat',transHit,`${transPct.toFixed(1)}% of total energy; threshold ≥1%.`],
   ['Sodium',sodiumHit,sodiumDetail],
-  ['Sweeteners',sweet,sweet?'Sweeteners are present.':'No sweeteners reported.']
+  ['Any amount of non-sugar sweeteners and other sweeteners',sweet,sweet?'Any amount of non-sugar sweeteners and other sweeteners are present.':'No sweeteners reported.']
  ];
  const total=rows.filter(r=>r[1]).length;
  const results=document.getElementById('results');
