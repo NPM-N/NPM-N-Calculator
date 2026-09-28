@@ -69,8 +69,16 @@ const isNonCaloric=()=>isBeverage()&&document.querySelector('input[name="noncalo
 function syncType(){caloricBox.classList.toggle('hidden',!isBeverage());document.getElementById('unit').value=isBeverage()?'mL':'g'}
 document.querySelectorAll('input[name="type"]').forEach(x=>x.addEventListener('change',syncType));
 function v(id){const x=document.getElementById(id).value.trim();return x===''?null:Number(x)}
-function resultRow(name,hit,detail){return `<div class="result"><strong class="${hit?'warn':'ok'}">${hit?'⚠ Excess in '+name:'✓ No warning for '+name.toLowerCase()}</strong><small>${detail}</small>${hit?`<small><b>1 warning label required for ${name.toLowerCase()}.</b></small>`:''}</div>`}
-document.getElementById('sweetInfoBtn').addEventListener('click',()=>{const box=document.getElementById('sweetInfo');const hidden=box.classList.toggle('hidden');document.getElementById('sweetInfoBtn').setAttribute('aria-expanded',String(!hidden))});
+ function resultRow(name,hit,detail){
+  let message;
+  if(name==='Sweeteners'){
+    message=hit?'⚠ Contains sweeteners, not recommended for children':'✓ No sweeteners reported';
+  }else{
+    message=hit?'⚠ Excess in '+name:'✓ No warning for '+name.toLowerCase();
+  }
+  return `<div class="result"><strong class="${hit?'warn':'ok'}">${message}</strong><small>${detail}</small>${hit?`<small><b>1 warning label required for ${name.toLowerCase()}.</b></small>`:''}</div>`;
+}
+  document.getElementById('sweetInfoBtn').addEventListener('click',()=>{const box=document.getElementById('sweetInfo');const hidden=box.classList.toggle('hidden');document.getElementById('sweetInfoBtn').setAttribute('aria-expanded',String(!hidden))});
 form.addEventListener('submit',e=>{
 e.preventDefault();
 const S=v('servingSize'),E=v('energy'),Na=v('sodium'),Su=v('sugar'),Sa=v('sat'),Tr=v('trans');
