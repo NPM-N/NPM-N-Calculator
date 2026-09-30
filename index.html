@@ -31,9 +31,36 @@ button{border:0;border-radius:9px;padding:12px 18px;font-weight:700;font-size:15
 <div class="scope"><strong>Note:</strong> This calculator is intended for the assessment of processed and ultra-processed food and beverage products.</div>
 <p class="help">Enter the serving size and nutrient amounts as reported per serving on the product's nutrition label.</p>
 <form id="form">
-<label>Product type</label>
-<div class="choice"><label><input type="radio" name="type" value="solid" checked> Solid food</label><label><input type="radio" name="type" value="beverage"> Beverage</label></div>
-<div id="caloricBox" class="question hidden"><p>Is this a non-caloric beverage?</p><div class="choice" style="margin-bottom:0"><label><input type="radio" name="noncaloric" value="yes"> Yes</label><label><input type="radio" name="noncaloric" value="no" checked> No</label></div></div>
+<label>
+  Product type
+  <button type="button" id="productInfoBtn" class="info-btn"
+    aria-expanded="false" aria-controls="productInfo"
+    title="Information about product type">ⓘ</button>
+</label>
+
+<div id="productInfo" class="info-box hidden">
+  <strong>Product type guidance</strong><br><br>
+
+  Products are generally classified as <strong>solid foods</strong> when their
+  net content is declared by mass (e.g., grams) and as <strong>beverages</strong>
+  when their net content is declared by volume (e.g., millilitres).
+  <br><br>
+
+  Where a product could reasonably be expressed in either mass or volume,
+  consider how it is normally consumed. Products normally consumed as drinks
+  should be classified as <strong>beverages</strong>; otherwise, they should
+  be classified as <strong>solid foods</strong>.
+  <br><br>
+
+  Products requiring preparation or reconstitution should be assessed as
+  prepared according to the manufacturer's instructions, where possible.
+</div>
+
+<div class="choice">
+  <label><input type="radio" name="type" value="solid" checked> Solid food</label>
+  <label><input type="radio" name="type" value="beverage"> Beverage</label>
+</div>
+ <div id="caloricBox" class="question hidden"><p>Is this a non-caloric beverage?</p><div class="choice" style="margin-bottom:0"><label><input type="radio" name="noncaloric" value="yes"> Yes</label><label><input type="radio" name="noncaloric" value="no" checked> No</label></div></div>
 
  <div class="serving">
   <label>
