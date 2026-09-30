@@ -139,6 +139,14 @@ function v(id){const x=document.getElementById(id).value.trim();return x===''?nu
   }
   return `<div class="result"><strong class="${hit?'warn':'ok'}">${message}</strong><small>${detail}</small>${hit?`<small><b>1 warning label required for ${name.toLowerCase()}.</b></small>`:''}</div>`;
 }
+
+  document.getElementById('productInfoBtn').addEventListener('click',()=>{
+  const box=document.getElementById('productInfo');
+  const hidden=box.classList.toggle('hidden');
+  document.getElementById('productInfoBtn')
+    .setAttribute('aria-expanded',String(!hidden));
+});
+  
 document.getElementById('sugarInfoBtn').addEventListener('click',()=>{
   const box=document.getElementById('sugarInfo');
   const hidden=box.classList.toggle('hidden');
@@ -186,7 +194,9 @@ document.getElementById('reset').addEventListener('click',()=>{
 
   document.getElementById('sugarInfo').classList.add('hidden');
   document.getElementById('sugarInfoBtn').setAttribute('aria-expanded','false');
-});
+document.getElementById('productInfo').classList.add('hidden');
+document.getElementById('productInfoBtn').setAttribute('aria-expanded','false');
+  });
  syncType();
 </script>
 </body>
