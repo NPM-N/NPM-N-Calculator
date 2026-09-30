@@ -12,7 +12,7 @@
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}.card{border:1px solid var(--line);border-radius:14px;padding:18px}.card h2{margin:0 0 6px;font-size:20px}
 .help{color:var(--muted);font-size:13px;margin:0 0 12px;line-height:1.45}.scope{background:var(--pale);border-left:4px solid var(--green);padding:10px 12px;border-radius:7px;margin:10px 0 16px;font-size:13px;line-height:1.45}
 .choice{display:flex;gap:24px;flex-wrap:wrap;margin:8px 0 18px}label{font-weight:600;font-size:14px}.choice label{font-weight:500}.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-input[type=number],select{width:100%;margin-top:6px;padding:12px;border:1px solid #bfc9c2;border-radius:9px;font-size:16px;background:white}.serving{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:16px}
+input[type=number],select{width:100%;margin-top:6px;padding:12px;border:1px solid #bfc9c2;border-radius:9px;font-size:16px;background:white}.serving{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:16px}
 .question{margin-top:17px;padding:13px;border:1px solid var(--line);border-radius:10px;background:#fbfcfb}.question p{margin:0 0 4px;font-weight:700}.info-btn{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border-radius:50%;background:var(--pale);color:var(--green2);font-size:15px;margin-left:5px;vertical-align:middle}.info-box{margin-top:9px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:white;color:var(--text);font-size:13px;line-height:1.5}
 button{border:0;border-radius:9px;padding:12px 18px;font-weight:700;font-size:15px;cursor:pointer}.primary{background:var(--green);color:white}.secondary{background:#edf1ee;color:var(--text);margin-left:8px}.actions{margin-top:18px}.error{color:var(--red);font-weight:700;font-size:13px;margin-top:12px}.summary{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
 .count{border:1px solid var(--line);border-radius:12px;padding:9px 14px;text-align:center;min-width:90px}.count strong{display:block;font-size:28px}.count small{color:var(--muted)}.empty{margin-top:20px;padding:32px 12px;border:1px dashed #bfc9c2;border-radius:10px;text-align:center;color:var(--muted)}
@@ -34,13 +34,35 @@ button{border:0;border-radius:9px;padding:12px 18px;font-weight:700;font-size:15
 <label>Product type</label>
 <div class="choice"><label><input type="radio" name="type" value="solid" checked> Solid food</label><label><input type="radio" name="type" value="beverage"> Beverage</label></div>
 <div id="caloricBox" class="question hidden"><p>Is this a non-caloric beverage?</p><div class="choice" style="margin-bottom:0"><label><input type="radio" name="noncaloric" value="yes"> Yes</label><label><input type="radio" name="noncaloric" value="no" checked> No</label></div></div>
-<div class="serving"><label>Serving size<input id="servingSize" type="number" min="0" step="any" placeholder="e.g. 30"></label><label>Unit<select id="unit"><option value="g">g</option><option value="mL">mL</option></select></label></div>
-<p class="help"><strong>Amount per serving</strong></p>
+
+ <div class="serving">
+  <label>
+    <span id="servingLabel">Serving size (g)</span>
+    <input id="servingSize" type="number" min="0" step="any" placeholder="e.g. 30">
+  </label>
+</div>
+ 
+ <p class="help"><strong>Amount per serving</strong></p>
 <div class="fields">
 <label>Energy (kcal)<input id="energy" type="number" min="0" step="any" placeholder="e.g. 120"></label>
 <label>Sodium (mg)<input id="sodium" type="number" min="0" step="any" placeholder="e.g. 180"></label>
-<label>Free sugars (g)<input id="sugar" type="number" min="0" step="any" placeholder="e.g. 6"></label>
-<label>Saturated fat (g)<input id="sat" type="number" min="0" step="any" placeholder="e.g. 3"></label>
+ 
+<label>
+  Free sugars (g)
+  <button type="button" id="sugarInfoBtn" class="info-btn"
+    aria-expanded="false" aria-controls="sugarInfo"
+    title="Information about free sugars">ⓘ</button>
+  <input id="sugar" type="number" min="0" step="any" placeholder="e.g. 6">
+  <div id="sugarInfo" class="info-box hidden">
+    <strong>Note on free sugars</strong><br>
+    Free sugars are usually not reported separately on nutrition labels.
+    For the purpose of this calculator, declared added sugars or total sugars
+    may be entered as a proxy where free sugars are unavailable.
+    Please note that total sugars include both free sugars and naturally
+    occurring sugars from sources such as milk, fruits, and vegetables.
+  </div>
+</label>
+ <label>Saturated fat (g)<input id="sat" type="number" min="0" step="any" placeholder="e.g. 3"></label>
 <label>Trans fat (g)<input id="trans" type="number" min="0" step="any" placeholder="e.g. 0.2"></label>
 </div>
 <div class="question"><p>Contains sweeteners? <button type="button" id="sweetInfoBtn" class="info-btn" aria-expanded="false" aria-controls="sweetInfo" title="Information about sweeteners">ⓘ</button></p><span class="help">Check the product's ingredient list.</span>
@@ -66,8 +88,20 @@ const caloricBox=document.getElementById('caloricBox');
 const type=()=>document.querySelector('input[name="type"]:checked').value;
 const isBeverage=()=>type()==='beverage';
 const isNonCaloric=()=>isBeverage()&&document.querySelector('input[name="noncaloric"]:checked').value==='yes';
-function syncType(){caloricBox.classList.toggle('hidden',!isBeverage());document.getElementById('unit').value=isBeverage()?'mL':'g'}
-document.querySelectorAll('input[name="type"]').forEach(x=>x.addEventListener('change',syncType));
+ function syncType(){
+  caloricBox.classList.toggle('hidden',!isBeverage());
+  const servingLabel=document.getElementById('servingLabel');
+  const servingInput=document.getElementById('servingSize');
+
+  if(isBeverage()){
+    servingLabel.textContent='Serving size (mL)';
+    servingInput.placeholder='e.g. 250';
+  }else{
+    servingLabel.textContent='Serving size (g)';
+    servingInput.placeholder='e.g. 30';
+  }
+}
+ document.querySelectorAll('input[name="type"]').forEach(x=>x.addEventListener('change',syncType));
 function v(id){const x=document.getElementById(id).value.trim();return x===''?null:Number(x)}
  function resultRow(name,hit,detail){
   let message;
@@ -78,18 +112,22 @@ function v(id){const x=document.getElementById(id).value.trim();return x===''?nu
   }
   return `<div class="result"><strong class="${hit?'warn':'ok'}">${message}</strong><small>${detail}</small>${hit?`<small><b>1 warning label required for ${name.toLowerCase()}.</b></small>`:''}</div>`;
 }
+document.getElementById('sugarInfoBtn').addEventListener('click',()=>{
+  const box=document.getElementById('sugarInfo');
+  const hidden=box.classList.toggle('hidden');
+  document.getElementById('sugarInfoBtn')
+    .setAttribute('aria-expanded',String(!hidden));
+});
+ 
   document.getElementById('sweetInfoBtn').addEventListener('click',()=>{const box=document.getElementById('sweetInfo');const hidden=box.classList.toggle('hidden');document.getElementById('sweetInfoBtn').setAttribute('aria-expanded',String(!hidden))});
 form.addEventListener('submit',e=>{
 e.preventDefault();
-const S=v('servingSize'),E=v('energy'),Na=v('sodium'),Su=v('sugar'),Sa=v('sat'),Tr=v('trans');
+ const S=v('servingSize'),E=v('energy'),Na=v('sodium'),Su=v('sugar'),Sa=v('sat'),Tr=v('trans');
 const error=document.getElementById('error');error.textContent='';
 if(S===null||!Number.isFinite(S)||S<=0){error.textContent='Please enter a serving size greater than 0.';return}
 if([E,Na,Su,Sa,Tr].some(x=>x===null||!Number.isFinite(x)||x<0)){error.textContent='Please enter a valid non-negative value in every nutrient field.';return}
 const beverage=isBeverage(),noncaloric=isNonCaloric();
 if(E===0&&!noncaloric&&(Su>0||Sa>0||Tr>0||Na>0)){error.textContent='Energy must be greater than 0 for energy-based calculations, unless this is a non-caloric beverage.';return}
-const expectedUnit=beverage?'mL':'g';
-const unit=document.getElementById('unit').value;
-if(unit!==expectedUnit){error.textContent=`For ${beverage?'beverages':'solid foods'}, please enter serving size in ${expectedUnit}.`;return}
 const pct=(g,k)=>E>0?(g*k/E)*100:0;
 const sugarPct=pct(Su,4),satPct=pct(Sa,9),transPct=pct(Tr,9);
 const sugarHit=beverage?sugarPct>=5:sugarPct>=10;
@@ -102,8 +140,27 @@ const sweet=document.querySelector('input[name="sweet"]:checked').value==='yes';
 const rows=[['Free Sugars',sugarHit,`${sugarPct.toFixed(1)}% of total energy; threshold ${beverage?'≥5%':'≥10%'}.`],['Saturated Fat',satHit,`${satPct.toFixed(1)}% of total energy; threshold ≥10%.`],['Trans Fat',transHit,`${transPct.toFixed(1)}% of total energy; threshold ≥1%.`],['Sodium',sodiumHit,sodiumDetail],['Sweeteners',sweet,sweet?'Sweeteners reported in the ingredient list.':'No sweeteners reported.']];
 const total=rows.filter(r=>r[1]).length;const results=document.getElementById('results');results.className='';results.innerHTML=rows.map(r=>resultRow(...r)).join('');document.getElementById('count').textContent=total;document.getElementById('status').textContent=beverage?(noncaloric?'Non-caloric beverage assessment.':'Caloric beverage assessment.'):'Solid food assessment.';document.getElementById('totalBox').classList.remove('hidden');document.getElementById('total').textContent=`${total} warning label${total===1?'':'s'}`;
 });
-document.getElementById('reset').addEventListener('click',()=>{form.reset();syncType();document.getElementById('error').textContent='';document.getElementById('count').textContent='—';document.getElementById('status').textContent='Enter product information and calculate.';const r=document.getElementById('results');r.className='empty';r.innerHTML='Results will appear here.';document.getElementById('totalBox').classList.add('hidden');document.getElementById('sweetInfo').classList.add('hidden');document.getElementById('sweetInfoBtn').setAttribute('aria-expanded','false')});
-syncType();
+document.getElementById('reset').addEventListener('click',()=>{
+  form.reset();
+  syncType();
+
+  document.getElementById('error').textContent='';
+  document.getElementById('count').textContent='—';
+  document.getElementById('status').textContent='Enter product information and calculate.';
+
+  const r=document.getElementById('results');
+  r.className='empty';
+  r.innerHTML='Results will appear here.';
+
+  document.getElementById('totalBox').classList.add('hidden');
+
+  document.getElementById('sweetInfo').classList.add('hidden');
+  document.getElementById('sweetInfoBtn').setAttribute('aria-expanded','false');
+
+  document.getElementById('sugarInfo').classList.add('hidden');
+  document.getElementById('sugarInfoBtn').setAttribute('aria-expanded','false');
+});
+ syncType();
 </script>
 </body>
 </html>
